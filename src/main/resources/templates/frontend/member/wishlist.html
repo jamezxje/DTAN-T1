@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/frontend/fragment/front-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Wishlist</title>
+</head>
+
+<body>
+
+<div class="container-fluid" layout:fragment="content">
+    <section>
+        <div class="container px-4 px-lg-5 my-5">
+
+            <h1 class="fw-bolder h4 mb-4">My Wishlist</h1>
+
+            <!-- Wishlist Items -->
+            <div th:if="${not #lists.isEmpty(wishlist)}">
+                <div class="row">
+                    <div class="col-md-6 px-2" th:each="wishItem : ${wishlist}">
+                        <div class="d-flex my-2 align-items-center px-2 py-1 border shadow rounded">
+                            <div class="">
+                                <a th:href="@{'/details/' + ${wishItem.carId}}">
+                                    <img class="card-img-top car-item-img rounded" th:src="@{'/' + ${wishItem.imageUrl}}"
+                                         th:alt="${wishItem.imageAlt}" style="width: 150px; display: block;"/>
+                                </a>
+                            </div>
+
+                            <div class="card-body m-2">
+
+                                <div class="d-flex justify-content-between">
+                                    <form class="d-inline-block"
+                                          th:action="@{'/wishlist/' + ${wishItem.carId} + '/delete' }" method="post">
+                                        <button class="btn btn-danger btn-sm flex-shrink-0">
+                                            <i class="bi bi-heart-fill"></i>
+                                        </button>
+                                    </form>
+
+                                    <a th:if="${wishItem.status}" class="btn btn-outline-dark btn-sm"
+                                       th:href="@{'/details/' + ${wishItem.carId} + '/booking' }">
+                                        <i class="bi bi-cart"></i>
+                                    </a>
+                                </div>
+
+                                <p class="my-2">
+                                    $[[${wishItem.basePrice}]] - [[${wishItem.numberOfSeats}]] seats
+                                </p>
+
+                                <a th:href="@{'/details/' + ${wishItem.carId}}" class="text-decoration-none">
+                                    <h6 class="m-0" th:text="${wishItem.carModel}">
+                                    </h6>
+                                </a>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty Wishlist Message -->
+            <div th:if="${#lists.isEmpty(wishlist)}">
+                <p>Your wishlist is empty.</p>
+            </div>
+
+        </div>
+    </section>
+</div>
+
+</body>
+</html>

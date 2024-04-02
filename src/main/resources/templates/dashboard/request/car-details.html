@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+                xmlns:th="http://www.thymeleaf.org"
+                layout:decorate="~{/dashboard/dashboard-layout}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Create Car</title>
+</head>
+<body>
+<!-- Begin Page Content -->
+<div class="container" layout:fragment="content">
+    <!-- Page Heading -->
+    <h1 class="h3 mb-5 text-gray-800">My cars management</h1>
+    <!-- Page Table -->
+
+        <div class="row" th:object="${car}">
+            <div class="col-6">
+                <label for="carModel">Car Model </label>
+                <input disabled  id="carModel" type="text" th:field="*{carModel}" placeholder="Enter car model" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="brand" >Brand </label>
+                <input disabled  id="brand" type="text" th:field="*{brandName}" class="form-control mb-4">
+            </div>
+            <div class="col-6 mb-3">
+                <label>Feature Image </label>
+                <div id="featureImagePreview">
+                    <img th:if="${car.featureImageUrl != null}" th:src="@{'/' + ${car.featureImageUrl}}" class="img-fluid mx-2"
+                         style="height: 100px" alt="Feature Image">
+                </div>
+            </div>
+            <div class="col-6  mb-3">
+                <label>Gallery Images</label>
+                <div id="imagesPreview"  class="d-flex flex-wrap"></div>
+                <div th:if="${car.imageUrls != null && car.imageUrls.size() > 0}">
+                    <div class="d-flex flex-wrap">
+                        <div th:each="image : ${car.imageUrls}" style="position: relative">
+                            <img th:src="@{'/' + ${image}}" class="img-fluid d-block m-2"
+                                 style="height: 60px" alt="Gallery Image">
+                        </div>
+                    </div>
+                </div>
+                <div id="deleteImagesUrl"></div>
+            </div>
+            <div class="col-6">
+                <label for="carColor">Color </label>
+                <input disabled id="carColor" type="text" th:field="*{carColor}" placeholder="Enter color" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="carLicensePlate">License Plate </label>
+                <input disabled id="carLicensePlate" type="text" th:field="*{carLicensePlate}" placeholder="Enter license plate" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="numberOfSeats">Number Of Seats </label>
+                <input disabled id="numberOfSeats" type="number" min="4" max="99" th:field="*{numberOfSeats}" placeholder="Enter number of seats" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="productionYear">Production Year </label>
+                <input disabled id="productionYear" type="number" min="1900" th:field="*{productionYear}" placeholder="Enter Production Year" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="transmissionType" >Transmission Type </label>
+                <input disabled id="transmissionType" type="text" th:field="*{transmissionType.type}" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="fuelType" >Fuel Type </label>
+                <input disabled id="fuelType" type="text" th:field="*{fuelType.type}" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="mileage">Mileage </label>
+                <input disabled id="mileage" type="number" min="0" th:field="*{mileage}" placeholder="Enter mileage" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="fuelConsumption" >Fuel Consumption </label>
+                <input disabled id="fuelConsumption" type="text"  th:field="*{fuelConsumption}" placeholder="Enter fuel consumption" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="basePrice">Base Price </label>
+                <input disabled id="basePrice" type="number" min="0" th:field="*{basePrice}" placeholder="Enter base price" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="deposit">Deposit </label>
+                <input disabled id="deposit" type="number" min="0" th:field="*{deposit}" placeholder="Enter deposit" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="address">Address </label>
+                <input disabled id="address" type="text" th:field="*{address}" placeholder="Enter address" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="additionalFunction" >Additional Function</label>
+                <input disabled id="additionalFunction" type="text" th:field="*{additionalFunction}"  class="form-control mb-4">
+            </div>
+            <div class="col-12">
+                <label for="description">Description</label>
+                <textarea style="height: 200px" disabled id="description" th:field="*{description}"  class="form-control mb-4"></textarea>
+            </div>
+            <div class="col-12">
+                <label for="termOfUse" >Term Of Use</label>
+                <textarea disabled id="termOfUse" th:field="*{termOfUse}"  class="form-control mb-4"></textarea>
+            </div>
+            <div class="col-6">
+                <label for="status">Status</label>
+                <input disabled id="status" type="text" th:classappend="${'text-' + car.getStatus().getStatusClass()}"  th:value="*{status.getStatus()}"  class="form-control mb-4">
+            </div>
+        </div>
+    <div class="d-flex justify-content-center">
+        <th:block th:if="${car.status.isPending()}">
+            <button type="button" class="btn btn-success col-3 mr-2" data-toggle="modal" data-target="#exampleModal1"> Approve</button>
+            <div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <form  class="mr-2 d-block" th:action="@{'/dashboard/request/cars/' + ${car.carId} + '/status?status=APPROVED' }" method="post">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModal1Label">Comfirm</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Do you want to approve this car?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <form th:action="@{'/dashboard/request/cars/' + ${car.carId} + '/status?status=APPROVED' }" method="post">
+                                    <button type="submit" class="btn btn-success">Approve</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+        </th:block>
+        <th:block th:unless="${car.status.isDisabled()}">
+            <button type="button" class="btn btn-danger col-3" data-toggle="modal" data-target="#exampleModal"> Reject</button>
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Comfirm</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Do you want to disable this car?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <form th:action="@{'/dashboard/request/cars/' + ${car.carId} + '/status?status=REJECTED' }" method="post">
+                                <button type="submit" class="btn btn-danger">Reject</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </div>
+    <hr>
+</div>
+<!-- End Page Content -->
+</body>
+</html>

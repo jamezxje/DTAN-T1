@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/frontend/fragment/front-layout}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Details of [[${car.carModel}]]</title>
+</head>
+
+<body>
+
+<div class="container px-4 px-lg-5 my-5" layout:fragment="content">
+    <section>
+        <div class="row my-4" th:if="${success}">
+            <div class="alert alert-success" role="alert" th:text="${success}"> </div>
+        </div>
+
+        <div class="row my-4" th:if="${error}">
+            <div class="alert alert-warning" role="alert" th:text="${error}"> </div>
+        </div>
+
+        <div class="row align-items-center my-4">
+
+            <div class="col-md-4">
+                <img class="card-img-top mb-5 mb-md-0 rounded" th:src="@{'/' + ${car.featuredImageUrl}}" th:alt="${car.carModel}" />
+            </div>
+
+            <div class="col-md-8">
+                <div class="mb-2">
+                    <a class="px-3 py-1 badge bg-primary text-white text-decoration-none"
+                       th:href="@{'/brands/'+ ${car.brandId}}" th:text="${car.brandName}">
+                    </a>
+                </div>
+
+                <h1 class="h4" th:text="${car.carModel}"> </h1>
+
+                <div class="mb-3">
+                    <span class="fst-italic text-muted"> <strong>  $[[${car.basePrice}]] </strong> / day  </span>
+                    <br>
+                    <span th:if="${car.deposit>0}" class="small"><i>Deposit with [[${car.deposit}]]</i></span>
+                    <span th:if="${car.deposit == 0}" class="small"><i>No deposit required</i></span>
+                </div>
+
+                <div class="my-3">
+
+                    <div class="rateyo-readonly-widg my-2" th:data-rateyo-rating="${car.averageRating}" id="rateyo-readonly-widg"></div>
+
+                    <span class="text-muted font-weight-light fst-italic"> [[${car.averageRating ?: '0' }]]/5  ([[${car.totalRating > 0 ? car.totalRating + ' feedbacks' : 'no feedback yet'}]] ) </span>
+                </div>
+
+                <div class="booking-wrapper">
+
+                    <div class="d-flex justify-content-between" sec:authorize="hasRole('ROLE_CUSTOMER')">
+
+                        <div th:if="${car.isInWishlist}">
+
+                            <form th:action="@{'/wishlist/' + ${car.carId} + '/delete' }" method="post">
+                                <input type="hidden" name="page" value="detail">
+                                <button class="btn btn-danger btn-sm flex-shrink-0">
+                                    <i class="bi bi-heart-fill"></i>
+                                    Remove
+                                </button>
+                            </form>
+
+                        </div>
+
+                        <div th:unless="${car.isInWishlist}">
+                            <form th:action="@{'/wishlist/' + ${car.carId}}" method="post">
+                                <button class="btn btn-outline-danger btn-sm flex-shrink-0">
+                                    <i class="bi bi-heart-fill"></i>
+                                    Wishlist
+                                </button>
+                            </form>
+                        </div>
+
+                        <th:block th:if="${car.isCarAvailableToBooking}">
+                            <a class="btn btn-outline-dark btn-sm flex-shrink-0 d-inline-block" th:href="@{'/details/' + ${car.carId} + '/booking' }">
+                                <i class="bi bi-cart"></i>
+                                Rent
+                            </a>
+                        </th:block>
+
+                        <th:block th:unless="${car.isCarAvailableToBooking}">
+                            <div class="text-danger"> <i> Car is current for rent </i> </div>
+                        </th:block>
+
+                    </div>
+
+                    <div sec:authorize="hasAnyRole('ROLE_ANONYMOUS')" class="text-warning font-weight-bold">
+                        <i>Login as customer to rent this car</i>
+                    </div>
+
+                </div>
+            </div>
+
+            <div th:if="${ car.images != null && car.images.size() > 0 }" class="col-12 my-3">
+
+                <h5> Screenshots </h5>
+
+                <div class="entry-block my-4">
+                    <div class="entry-screenshot mt-3">
+                        <div class="screenshots beauty-scroll">
+                            <a th:each="imageUrl: ${car.images}" data-fancybox="gallery" class="screenshot mx-2" th:href="@{'/' + ${imageUrl} }">
+                                <img class="mw-100" loading="lazy" decoding="async" th:src="@{'/' + ${imageUrl} }" th:alt="${car.carModel}">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row align-items-center my-4">
+            <h4 class="mb-4">Description</h4>
+            <div class="content-description" th:utext="${car.description}"></div>
+        </div>
+
+        <div class="row align-items-center my-4">
+
+            <ul class="nav nav-tabs" id="myTab">
+                <li class="nav-item">
+                    <a href="#tech-info" class="nav-link active" data-bs-toggle="tab">Technical information</a>
+                </li>
+                <li th:if="${car.termOfUse}" class="nav-item">
+                    <a href="#term-of-use" class="nav-link" data-bs-toggle="tab">Terms of use</a>
+                </li>
+                <li th:if="${ratings != null && ratings.totalItems > 0}" class="nav-item" >
+                    <a href="#feedback" class="nav-link" data-bs-toggle="tab">Feedback & rating</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="tech-info">
+
+                    <table class="table my-4">
+                        <caption> One of the best car </caption>
+                        <tbody>
+                        <tr>
+                            <th scope="row">Model</th>
+                            <td th:text="${car.carModel}"></td>
+                        </tr>
+
+                        <tr th:if="${car.additionalFunction}">
+                            <th scope="row">Additional Functions</th>
+                            <td th:text="${car.additionalFunction}"></td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Color</th>
+                            <td th:text="${car.carColor}"></td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Production year</th>
+                            <td th:text="${car.productionYear}"></td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Fuel type</th>
+                            <td th:text="${car.fuelType}"></td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Fuel Consumption</th>
+                            <td th:text="${car.fuelConsumption}"></td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">License Plate</th>
+                            <td th:text="${car.carLicensePlate}"></td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Transmission Type</th>
+                            <td th:text="${car.transmissionType}"></td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Number of Seats</th>
+                            <td th:text="${car.numberOfSeats}"></td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Mileage</th>
+                            <td th:text="${car.mileage}"></td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <div th:if="${car.termOfUse}" class="tab-pane fade" id="term-of-use">
+                    <p th:text="${car.termOfUse}" class="my-4"></p>
+                </div>
+
+                <div th:if="${ratings != null && ratings.totalItems > 0 }" class="tab-pane fade" id="feedback" >
+                    <div class="my-4" th:each="rating : ${ratings.data}">
+                        <div th:if="${rating.feedbackId}" class="border rounded px-3 py-2 my-4">
+
+                            <div class=""></div>
+
+                            <small class="fst-italic" th:text="${rating.memberName + ' at '}"></small>
+                            <small class="fst-italic" th:text="${#temporals.format(rating.feedbackDate, 'dd-MM-yyyy HH:mm')}"></small>
+
+                            <div class="rateyo-readonly-widg my-2" th:data-rateyo-rating="${rating.feedbackPoint}"> </div>
+
+                            <span class="fst-italic" th:text="${rating.feedbackContent}"> </span>
+
+                        </div>
+                    </div>
+
+                    <div class="pagination text-center d-flex justify-content-center">
+                        <nav aria-label="...">
+                            <ul class="pagination justify-content-end">
+                                <li class="page-item" th:classappend="${ratings.hasPrevious()} ? '' : 'disabled'">
+                                    <a class="page-link" href="#" th:href="@{'/details/' + ${carId} + '?pageIndex=' + ${filter.getPageIndex() - 1}}" >Previous</a>
+                                </li>
+                                <th:block th:each="i : ${#numbers.sequence(1,ratings.getTotalPages())}">
+                                    <li th:if="${i - 1 == filter.getPageIndex()}" class="page-item active">
+                                        <a class="page-link" href="#" th:text="${i}"></a>
+                                    </li>
+                                    <li th:unless="${i - 1 == filter.getPageIndex()}" class="page-item">
+                                        <a class="page-link" th:text="${i}" th:href="@{'/details/' + ${carId} + '?pageIndex=' + ${i - 1}}"></a>
+                                    </li>
+                                </th:block>
+                                <li class="page-item" th:classappend="${ratings.hasNext()} ? '' : 'disabled'">
+                                    <a class="page-link" th:href="@{'/details/' + ${carId} + '?pageIndex=' + ${filter.getPageIndex() + 1}}">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Related items section-->
+    <section th:if="${ ! relatedCars.isEmpty() }">
+
+        <h4 class="mb-4 text-center">Related cars</h4>
+
+        <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-lg-4 justify-content-center">
+
+            <div class="col mb-5 py-2" th:each="car : ${relatedCars}">
+
+                <div class="card h-100 car-item shadow">
+
+                    <a th:href="@{'/details/' + ${car.carId} }">
+                        <img class="card-img-top car-item-img" th:src="@{'/' + ${car.featuredImageUrl}}" th:alt="${car.carModel}" />
+                    </a>
+                    <div class="card-body p-3">
+
+                        <div class="d-flex justify-content-between my-2">
+                            <strong class="small"> $[[${car.basePrice}]] </strong>
+                            <span class="rounded-circle border border-2 border-black d-inline-block" style="width:20px; height: 20px;" th:styleappend="'background-color: ' + ${car.carColor} + ';'"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between my-2 text-muted">
+                            <span class="text-left small">
+                                [[${car.numberOfSeats}]] seats
+                            </span>
+
+                            <span class="fst-italic text-right small">
+                                    <i class="bi bi-fuel-pump"></i>
+                                    [[${car.fuelConsumption}]]
+                            </span>
+                        </div>
+
+                        <div class="text-center my-3">
+                            <a class="text-dark text-decoration-none" th:href="@{'/details/' + ${car.carId} }">
+                                <h6 class="fw-bold" th:text="${car.carModel}"></h6>
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <!-- Product actions-->
+                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                        <div class="text-center">
+
+                            <th:block sec:authorize="hasAnyRole('ROLE_CUSTOMER')">
+
+                                <form th:action="@{/wishlist/{id}(id=${car.carId})}" method="post" class="d-inline-block">
+                                    <button class="btn btn-sm btn-outline-danger mt-auto my-2" type="submit">
+                                        <i class="bi bi-bookmark-heart"></i>
+                                    </button>
+                                </form>
+
+                                <a class="btn btn-sm btn-outline-primary mt-auto my-2" th:href="@{'/details/' + ${car.carId} + '/booking' }">
+                                    <i class="bi bi-cart2"></i>
+                                    Rent
+                                </a>
+                            </th:block>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </section>
+
+</div>
+<!-- End Page Content -->
+</body>
+</html>

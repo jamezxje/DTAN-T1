@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/dashboard/dashboard-layout}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Category</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script type="text/javascript" th:src="@{/js/main.js}"></script>
+</head>
+<body>
+<!-- Begin Page Content -->
+<div class="container" layout:fragment="content">
+    <h1>Size Management System</h1>
+    <hr>
+    <h2 th:if="${size.sizeId == null}">Save Size</h2>
+    <h2 th:if="${size.sizeId != null}">Update Size</h2>
+    <br>
+    <form action="#" th:action="@{/dashboard/sizes/save}" th:object="${size}" method="POST" enctype="multipart/form-data">
+
+        <input type="hidden" th:field="*{sizeId}" />
+
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" th:field="*{sizeName}" placeholder="Enter brand name" required class="form-control mb-4 col-4">
+
+        </div>
+        <button type="submit" class="btn btn-info col-3">
+            <span th:if="${size.sizeId == null}">Save Size</span>
+            <span th:if="${size.sizeId != null}">Update Size</span>
+        </button>
+
+    </form>
+    <hr>
+
+    <a th:href="@{/dashboard/sizes}">Back to Size List</a>
+</div>
+<!-- End Page Content -->
+</body>
+</html>

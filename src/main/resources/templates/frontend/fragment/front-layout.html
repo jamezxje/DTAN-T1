@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:layout="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title> Rental Car System </title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.0/font/bootstrap-icons.min.css" integrity="sha512-rDTlSC+d3sQQeTwkSYI7grcqLTrDZjOEEddzt/7IRA+9Q7x1Zud4j++lH29VSlNrTI0RZ/9d45X6qrFK0RD94w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link th:href="@{/front/css/bootstrap.min.css}" rel="stylesheet" />
+    <link th:href="@{/front/css/style.css}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.css">
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container px-4 px-lg-5 d-flex align-items-center justify-content-between">
+        <a class="navbar-brand d-inline-block" th:href="@{/}">[[${options['system_name']}]]</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                <li class="nav-item dropdown" th:if="${brands != null && brands.size() > 0}">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Brands</a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li>
+                            <a class="dropdown-item" href="#">All Brands</a>
+                        </li>
+                        <li class="dropdown-divider"> </li>
+                        <li th:each="brand : ${brands}">
+                            <a class="dropdown-item" th:href="@{/brands/{brandId}(brandId=${brand.brandId})}" th:text="${brand.brandName}"></a>                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/search}">
+                        <i class="bi bi-search small"></i>
+                        Search
+                    </a>
+                </li>
+
+            </ul>
+
+            <ul class="navbar-nav" sec:authorize="!hasAnyRole('ROLE_ANONYMOUS')">
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Hi, [[${#authentication.principal.username}]]
+                    </a>
+
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+
+                        <th:block>
+                            <li sec:authorize="hasAnyRole('ROLE_OWNER', 'ROLE_ADMIN')">
+                                <a class="dropdown-item" th:href="@{/dashboard}">
+                                    <i class="bi bi-speedometer2 small"></i>
+                                    Dashboard
+                                </a>
+                            </li>
+                        </th:block>
+
+                        <li sec:authorize="hasAnyRole('ROLE_OWNER')">
+                            <a class="dropdown-item" th:href="@{/wallet}">
+                                <i class="bi bi-wallet"></i>
+                                Wallet
+                            </a>
+                        </li>
+
+                        <th:block sec:authorize="hasRole('ROLE_CUSTOMER')">
+                            <li>
+                                <a class="dropdown-item" href="/profile">
+                                    <i class="bi bi-person text-primary"></i>
+                                    Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/wallet}">
+                                    <i class="bi bi-wallet"></i>
+                                    Wallet
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/history}">
+                                    <i class="bi bi-bag"></i>
+                                    Orders
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/wishlist">
+                                    <i class="bi bi-heart-fill text-danger"></i>
+                                    Wishlist
+                                </a>
+                            </li>
+                        </th:block>
+
+                        <li class="dropdown-divider"> </li>
+
+                        <li sec:authorize="!hasAnyRole('ROLE_ANONYMOUS')">
+                            <form th:action="@{/logout}" class="dropdown-item bg-white">
+                                <button class="p-0 border-0 d-inline bg-white" type="submit">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    Logout
+                                </button>
+                            </form>
+                        </li>
+
+                    </ul>
+                </li>
+
+            </ul>
+
+            <div class="navbar-nav" sec:authorize="hasAnyRole('ROLE_ANONYMOUS')">
+                <a class="nav-link" th:href="@{/logout}">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Login
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Begin Page Content -->
+<div class="container px-4 px-lg-5" layout:fragment="content">
+
+</div>
+<!-- End Page Content -->
+
+<footer class="py-5 bg-dark mt-auto">
+    <div class="container"><p class="m-0 text-center text-white">[[${options['system_footer']}]]</p></div>
+</footer>
+
+<script th:src="@{/front/js/jquery.min.js}"></script>
+<script th:src="@{/front/js/bootstrap.min.js}"></script>
+<script th:src="@{/front/js/jquery.rateyo.min.js}"></script>
+<script th:src="@{/front/js/scripts.js}"></script>
+
+</body>
+</html>

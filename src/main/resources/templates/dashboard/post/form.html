@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/dashboard/dashboard-layout}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Post</title>
+</head>
+<body>
+<!-- Begin Page Content -->
+<div class="container" layout:fragment="content">
+    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+    <h2 class="my-4" th:if="${post == null || post.postId == null}">Add new Post</h2>
+    <h2 class="my-4" th:unless="${post == null || post.postId == null}">Update Post</h2>
+
+    <form th:action="@{/dashboard/posts/save}" method="POST" enctype="multipart/form-data" th:object="${post}">
+        <input type="hidden" th:field="*{postId}" name="postId">
+        <div class="form-group">
+            <label for="featureImage">Post thumbnail</label>
+            <input type="file" name="postFeaturedImage" id="featureImage" class="form-control mb-4 logo-input">
+
+            <div id="featureImagePreview">
+                <img th:if="${post.postFeaturedImageUrl != null && post.postFeaturedImageUrl.isBlank() == false}" th:src="@{'/' + ${post.postFeaturedImageUrl}}" class="img-fluid mx-2"
+                     style="height: 100px" alt="Feature Image">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="postTitle">Title</label>
+            <input th:field="*{postTitle}" type="text" id="postTitle" name="postTitle" required class="form-control mb-4">
+        </div>
+
+        <div class="form-group">
+            <label for="postStatus">Status</label>
+            <select th:field="*{postStatus}" name="postStatus" id="postStatus" class="form-control">
+                <option th:each="status : ${postStatus}" th:value="${status}" th:text="${status.status}" ></option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="postContent">Content</label>
+            <textarea th:field="*{postContent}" type="text" id="postContent" name="postContent" class="form-control mb-4">
+            </textarea>
+            <script>
+                CKEDITOR.replace( 'postContent' );
+            </script>
+        </div>
+
+        <div class="text-right my-4">
+            <button type="submit" class="btn btn-success px-4">Save</button>
+        </div>
+
+    </form>
+    <hr>
+
+    <div class="my-4">
+        <a th:href="@{/dashboard/posts}">Back to Posts</a>
+    </div>
+
+</div>
+<!-- End Page Content -->
+</body>
+</html>

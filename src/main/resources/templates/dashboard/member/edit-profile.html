@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/dashboard/dashboard-layout}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile</title>
+</head>
+<body>
+<!-- Begin Page Content -->
+<div class="container my-5" layout:fragment="content">
+    <div class="" th:if="${success}">
+        <div class="alert alert-success" role="alert" th:text="${success}"> </div>
+    </div>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Edit profile information</h1>
+    </div>
+    <form action="#" th:action="@{/dashboard/members/profile/save}" th:object="${profile}" method="POST" enctype="multipart/form-data">
+        <input type="hidden" th:field="*{memberId}">
+        <div class="row">
+            <div class="col-6">
+                <label for="fullName">Full Name <span class="text-danger">*</span></label>
+                <input required id="fullName" type="text" th:field="*{fullName}" placeholder="Enter full name" minlength="5" maxlength="20" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="images">Feature Image <span class="text-danger">*</span></label>
+                <input id="images" type="file" th:field="*{featureImage}" class="form-control mb-4 logo-input">
+                <div th:if="${profile.featureImageUrl != null}" class="d-inline-block position-relative brand-logo-container">
+                    <img th:src="@{'/' + ${profile.featureImageUrl}}" class="brand-logo-preview" alt="Brand Logo Preview" style="height: 150px;">
+                    <button class="btn position-absolute transparent-bg delete-button" style="top: 2px; right: 2px; color: red; font-weight: bold"> x </button>
+                    <input type="hidden" id="deleteFeatureImage" class="delete-flag" name="deleteFeatureImage" value="false">
+                </div>
+                <div th:if="${profile.featureImageUrl == null}" class="d-inline-block position-relative brand-logo-container">
+                    <img class="brand-logo-preview">
+                </div>
+                <div id="deleteFeatureImageUrl"></div>
+            </div>
+            <div class="col-6">
+                <label for="nationalId">National ID <span class="text-danger">*</span></label>
+                <input required id="nationalId" type="text" th:field="*{nationalId}" placeholder="Enter national id" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="email">Email <span class="text-danger">*</span></label>
+                <input required id="email" type="email"  th:field="*{email}" placeholder="Enter email" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="phoneNumber">Phone Number<span class="text-danger">*</span></label>
+                <input required id="phoneNumber" type="tel" th:field="*{phoneNumber}" placeholder="Enter Phone Number" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="dateOfBirth">Date of birth <span class="text-danger">*</span></label>
+                <input required id="dateOfBirth" type="date" th:field="*{dateOfBirth}" th:max="${#temporals.format(today, 'yyyy-MM-dd')}" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="address">Address <span class="text-danger">*</span></label>
+                <input required id="address" type="text" th:field="*{address}" placeholder="Enter address" class="form-control mb-4">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-info col-3"> Update Profile</button>
+
+    </form>
+</div>
+<!-- End Page Content -->
+</body>
+</html>

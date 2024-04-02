@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+
+      layout:decorate="~{/dashboard/dashboard-layout}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Products Management</title>
+</head>
+<body>
+<!-- Begin Page Content -->
+<div class="container-fluid" layout:fragment="content">
+    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+    <!-- Page Heading -->
+    <div class="d-flex justify-content-between">
+        <h1 class="h3 mb-5 text-gray-800">My products management</h1>
+        <a class="btn btn-success my-auto" th:href="@{/dashboard/products/add}">Add New Product</a>
+    </div>
+    <form class="mt-2" method="get" th:action="@{/dashboard/products}" th:object="${filter}">
+
+        <div class="d-flex flex-wrap align-items-center">
+
+            <div class="form-group">
+                <label for="productName">Product Name</label>
+                <input th:field="*{productName}" type="text" class="form-control" id="productName" placeholder="Enter Product Name">
+            </div>
+
+            <div class="ml-2 form-group">
+                <label for="categoryId">Category</label>
+                <select th:field="*{categoryId}" class="form-control" id="categoryId" >
+                    <option value="">All</option>
+                    <option th:each="category : ${categories}" th:value="${category.categoryId}" th:text="${category.categoryName}"></option>
+                </select>
+            </div>
+
+            <div class="ml-2 form-group">
+                <label for="colorId">Color</label>
+                <select th:field="*{colorId}" class="form-control" id="colorId" >
+                    <option value="">All</option>
+                    <option th:each="color : ${colors}" th:value="${color.colorId}" th:text="${color.colorName}"></option>
+                </select>
+            </div>
+
+            <div class="ml-2 form-group">
+                <label for="sizeId">Size</label>
+                <select th:field="*{sizeId}" class="form-control" id="sizeId" >
+                    <option value="">All</option>
+                    <option th:each="size : ${sizes}" th:value="${size.sizeId}" th:text="${size.sizeName}"></option>
+                </select>
+            </div>
+
+            <div class="ml-2 form-group">
+                <label for="status">Status</label>
+                <select th:field="*{status}" type="email" class="form-control" id="status" >
+                    <option value="">All</option>
+                    <option th:each="s : ${status}" th:value="${s}" th:text="${s.getStatus()}"></option>
+                </select>
+            </div>
+
+            <div class="ml-2 mt-3">
+                <input class="btn btn-primary" type="submit" value="Search">
+            </div>
+
+        </div>
+    </form>
+    <!-- Page Table -->
+    <th:block th:if="${products.data.size() == 0}">
+        <div class="alert rounded alert-warning mt-3" role="alert">
+            No products found
+        </div>
+    </th:block>
+    <th:block th:unless="${products.data.size() == 0}">
+        <div class="request-wrapper">
+            <div th:each="item: ${products.data}" class="py-2 px-3 bg-white shadow-sm my-3 rounded">
+                <div class="row d-flex justify-content-between align-items-center">
+                    <div class="col-12 col-md-6 d-flex align-items-center justify-content-start">
+                        <div class="img-thumbnail mr-2">
+                            <a th:href="@{'/dashboard/products/' + ${item.productId} }">
+                                <img th:src="@{${'/' + item.featureImageUrl}}" class="rounded" alt="Product image" style="width: 100px; max-width: 100px">
+                            </a>
+                        </div>
+                        <div>
+                            <div class="my-2 d-flex align-items-center">
+                                <a th:href="@{'/dashboard/products/' + ${item.productId} }" class="font-weight-bold text-dark mr-1"
+                                   th:text="${item.productName}"></a>
+                            </div>
+                            <div>
+                                Category: <span  th:text="${item.categoryName}"></span>
+                            </div>
+                            <div>
+                                Color: <span  th:text="${item.colorName}"></span>
+                            </div>
+                            <div>
+                                Size: <span  th:text="${item.sizeName}"></span>
+                            </div>
+                            <div>
+                                Quantity: <span  th:text="${item.quantity}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 text-right">
+                        <div class="mt-1">
+                            Base price: <span th:class="font-weight-bold" th:text="${'$' + item.basePrice}"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-12 d-flex align-items-center justify-content-between mt-1">
+                        <a class="font-weight-bold text-decoration-underline"
+                           th:href="@{/dashboard/products/{id}/details(id=${item.productId})}">
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                            Details
+                        </a>
+
+<!--                        <div class="text-right">-->
+<!--                            <a th:if="${item.status.isPending()}"-->
+<!--                               class="btn btn-sm btn-danger py-1"  onclick="return confirm('Do you want to reject this request?')"-->
+<!--                               th:href="@{/dashboard/products/cancel/{id}(id=${item.productId})}">-->
+<!--                                <i class="fa fa-times" aria-hidden="true"></i>-->
+<!--                                Cancel-->
+<!--                            </a>-->
+<!--                        </div>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <nav aria-label="...">
+            <ul class="pagination justify-content-end">
+                <li class="page-item" th:classappend="${products.hasPrevious()} ? '' : 'disabled'">
+                    <a class="page-link" href="#" th:href="@{/dashboard/products
+        (productName=${filter.productName},categoryId =${filter.categoryId},colorId =${filter.colorId}
+        ,status=${filter.status}, pageIndex=${filter.getPageIndex() - 1}
+        )}" >Previous</a>
+                </li>
+                <th:block th:each="i : ${#numbers.sequence(1,products.getTotalPages())}">
+                    <li th:if="${i - 1 == filter.getPageIndex()}" class="page-item active">
+                        <a class="page-link" href="#" th:text="${i}"></a>
+                    </li>
+                    <li th:unless="${i - 1 == filter.getPageIndex()}" class="page-item">
+                        <a class="page-link" th:text="${i}" th:href="@{/dashboard/products
+        (productName=${filter.productName},categoryId =${filter.categoryId},colorId =${filter.colorId}
+        ,status=${filter.status}, pageIndex=${i - 1}
+        )}"></a>
+                    </li>
+                </th:block>
+                <li class="page-item" th:classappend="${products.hasNext()} ? '' : 'disabled'">
+                    <a class="page-link" th:href="@{/dashboard/products
+        (productName=${filter.productName},categoryId =${filter.categoryId},colorId =${filter.colorId}
+        ,status=${filter.status}, pageIndex=${filter.getPageIndex() + 1}
+        )}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </th:block>
+</div>
+<!-- End Page Content -->
+</body>
+</html>

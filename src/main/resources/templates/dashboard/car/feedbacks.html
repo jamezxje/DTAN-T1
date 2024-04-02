@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+
+      layout:decorate="~{/dashboard/dashboard-layout}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Cars feedbacks</title>
+</head>
+<body>
+<!-- Begin Page Content -->
+<div class="container-fluid" layout:fragment="content">
+
+    <h1 class="h3 mb-5 text-gray-800">Car's feedbacks</h1>
+    <div class="my-3" th:if="${car != null}">
+        <a th:href="@{/dashboard/cars/{id}/details(id=${car.carId})}">
+            <i class="fa-solid fa-arrow-left"></i>
+            View car details
+        </a>
+    </div>
+
+
+    <div class="car-item-info rounded px-3 py-2 shadow">
+        <div class="d-flex justify-content-start align-items-center">
+            <div class="car-item-img mr-2">
+                <img class="rounded" th:src="@{ '/' + ${car.featuredImageUrl}}" th:alt="${car.carModel}" style="width: 150px">
+            </div>
+
+            <div class="car-item-details">
+                <h2 class="h5 font-weight-bold" th:text="${car.carModel}"></h2>
+                <p class="my-1" th:text="${'$' + car.basePrice}"></p>
+                <p class="my-1"> [[${car.carColor}]] - [[${car.numberOfSeats}]] seats</p>
+            </div>
+
+        </div>
+    </div>
+
+    <th:block th:if="${ratings != null && ratings.getTotalItems() == 0}">
+        <div class="alert rounded alert-warning my-4 text-center py-4" role="alert">
+            No rating yet
+        </div>
+    </th:block>
+
+    <th:block th:unless="${ratings.getTotalItems() == 0}">
+
+        <div class="request-wrapper my-4 bg-white shadow-sm rounded py-4">
+
+            <h5 class="my-3 text-center"> Customer's feedback </h5>
+
+            <div th:each="item: ${ratings.data}" class="py-2 px-3 rounded">
+                <div class="border rounded px-3 py-2">
+
+                    <div class="small font-italic">
+                        By
+                        <span th:text="${item.memberName}"></span>
+                        At
+                        <span th:text="${#temporals.format(item.feedbackDate, 'dd-MM-yyyy HH:mm')}"></span>
+                    </div>
+
+
+                    <div class="rateyo-readonly-widg my-2" th:data-rateyo-rating="${item.feedbackPoint}"> </div>
+
+                    <span class="font-italic" th:text="${item.feedbackContent}"> </span>
+                </div>
+            </div>
+
+        </div>
+        <nav aria-label="...">
+            <ul class="pagination justify-content-end">
+                <li class="page-item" th:classappend="${ratings.hasPrevious()} ? '' : 'disabled'">
+                    <a class="page-link" href="#" th:href="@{'/dashboard/cars/' + ${carId} + '/feedbacks?pageIndex=' + ${filter.getPageIndex() - 1}}" >Previous</a>
+                </li>
+                <th:block th:each="i : ${#numbers.sequence(1,ratings.getTotalPages())}">
+                    <li th:if="${i - 1 == filter.getPageIndex()}" class="page-item active">
+                        <a class="page-link" href="#" th:text="${i}"></a>
+                    </li>
+                    <li th:unless="${i - 1 == filter.getPageIndex()}" class="page-item">
+                        <a class="page-link" th:text="${i}" th:href="@{'/dashboard/cars/' + ${carId} + '/feedbacks?pageIndex=' + ${i - 1}}"></a>
+                    </li>
+                </th:block>
+                <li class="page-item" th:classappend="${ratings.hasNext()} ? '' : 'disabled'">
+                    <a class="page-link" th:href="@{'/dashboard/cars/' + ${carId} + '/feedbacks?pageIndex=' + ${filter.getPageIndex() + 1}}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </th:block>
+</div>
+<!-- End Page Content -->
+</body>
+</html>

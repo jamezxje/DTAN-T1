@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/dashboard/dashboard-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Booking details</title>
+</head>
+
+<body>
+<!-- Begin Page Content -->
+<div class="container-fluid" layout:fragment="content">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Booking details</h1>
+    </div>
+
+    <th:block th:if="${booking == null}">
+        <div class="alert rounded alert-warning mt-3" role="alert">
+            Booking not found
+        </div>
+    </th:block>
+
+    <th:block th:unless="${booking == null}">
+        <div class="booking-details bg-white shadow rounded p-3">
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h5 class="d-flex justify-content-between align-items-center mb-3">Information</h5>
+                    <div>
+
+                        <div class="badge badge-info" th:text="${booking.status}"></div>
+
+                        <div>
+                            <span class="font-weight-bold small">Car model</span>
+                            <p th:text="${booking.carModel}"></p>
+                        </div>
+
+                        <div>
+                            <span class="font-weight-bold small">Request at</span>
+                            <p th:text="${#temporals.format(booking.bookingRequestTime, 'dd-MM-yyyy HH:mm')}"></p>
+                        </div>
+
+                        <div class="font-weight-bold small">
+                            <span>Pickup time</span>
+                            <p th:text="${#temporals.format(booking.bookingPickupTime, 'dd-MM-yyyy HH:mm')}"></p>
+                        </div>
+
+                        <div>
+                            <span class="font-weight-bold small">Return time</span>
+                            <p th:text="${#temporals.format(booking.bookingReturnTime, 'dd-MM-yyyy HH:mm')}"></p>
+                        </div>
+
+                        <div th:if="${booking.bookingActualReturnTime}">
+                            <span class="font-weight-bold small">Actual return time</span>
+                            <p th:text="${#temporals.format(booking.bookingActualReturnTime, 'dd-MM-yyyy HH:mm')}"></p>
+                        </div>
+                        <div>
+                            <span class="font-weight-bold small">Payment method</span>
+                            <p th:text="${booking.bookingDetail.paymentMethod.paymentMethod}"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4 text-right">
+                    <h5 class="mb-3">Total</h5>
+                    <div>
+                        <div>
+                            <span class="font-weight-bold small">Base price</span>
+                            <p th:text="${'$' + booking.bookingDetail.basePrice}"></p>
+                        </div>
+                        <div>
+                            <span class="font-weight-bold small">Total fee</span>
+                            <p th:text="${'$' + booking.calculateFeePrice()}"></p>
+                        </div>
+                        <div>
+                            <span class="font-weight-bold small">Extra fee</span>
+                            <p th:text="${'$' + booking.calculateExtraFeePrice()}"></p>
+                        </div>
+                        <div>
+                            <span class="font-weight-bold small">Pickup fee</span>
+                            <p th:text="${'$' + booking.bookingDetail.pickupFee}"></p>
+                        </div>
+
+                        <div>
+                            <span class="font-weight-bold small">Total</span>
+                            <p th:text="${'$' + booking.calculateTotalPrice()}"></p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="">
+
+                <div class="row justify-content-center">
+                    <h5 class="mb-3">Billing address</h5>
+                </div>
+
+                <div class="row justify-content-between">
+                    <div class="col-md-4 text-center">
+                        <span class="font-weight-bold small">Full name</span>
+                        <p th:text="${booking.bookingDetail.fullName}"></p>
+                    </div>
+
+                    <div class="col-md-4 text-center">
+                        <span class="font-weight-bold small">Phone number</span>
+                        <p th:text="${booking.bookingDetail.phoneNumber}"></p>
+                    </div>
+
+                    <div class="col-md-4 text-center">
+                        <span class="font-weight-bold small">Address</span>
+                        <p th:text="${booking.bookingDetail.pickupAddress}"></p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-center">
+                <th:block th:if="${booking.status.isPending()}">
+                    <a class="btn btn-sm btn-success py-1" onclick="return confirm('Do you want to approve this request?')"
+                       th:href="@{/dashboard/bookings/request/status(id = ${booking.bookingId}, status = ${T(com.capstone.app.entity.type.Status).APPROVED.name})}">
+                        <i class="fa fa-check" aria-hidden="true"></i>
+                        Approve
+                    </a>
+                    <a class="btn btn-sm btn-danger py-1 ml-2"  onclick="return confirm('Do you want to reject this request?')"
+                       th:href="@{/dashboard/bookings/request/status(id = ${booking.bookingId}, status = ${T(com.capstone.app.entity.type.Status).REJECTED.name})}">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                        Reject
+                    </a>
+                </th:block>
+                <th:block th:if="${booking.status == T(com.capstone.app.entity.type.Status).APPROVED.name}">
+                    <a class="btn btn-sm btn-warning py-1"  onclick="return confirm('Do you want to confirm this request?')"
+                       th:href="@{/dashboard/bookings/request/status(id = ${booking.bookingId}, status = ${T(com.capstone.app.entity.type.Status).DONE.name})}">
+                        <i class="fa fa-check" aria-hidden="true"></i>
+                        Confirm Return
+                    </a>
+                </th:block>
+            </div>
+        </div>
+    </th:block>
+
+</div>
+<!-- End Page Content -->
+</body>
+
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/dashboard/dashboard-layout}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Create Car</title>
+</head>
+<body>
+<!-- Begin Page Content -->
+<div class="container" layout:fragment="content">
+    <!-- Page Heading -->
+    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+    <h1 class="h3 mb-5 text-gray-800"  th:if="${car == null || car.carId == null}">Add New Car</h1>
+    <h1 class="h3 mb-5 text-gray-800"  th:if="${car != null && car.carId != null}">Edit Car Details</h1>
+    <div class="my-3" th:if="${car != null && ratingInfo != null}">
+
+        <div class="rating-info my-2">
+
+            <div class="rateyo-readonly-widg my-2" th:data-rateyo-rating="${ratingInfo.averageRating}" id="rateyo-readonly-widg"></div>
+
+            <span class="text-muted font-weight-light fst-italic"> [[${ratingInfo.averageRating ?: '0' }]] / 5  ([[${ ratingInfo.totalRating > 0 ? ratingInfo.totalRating + ' feedbacks' : 'no feedback yet'}]] ) </span>
+
+        </div>
+
+        <a th:href="@{'/dashboard/cars/' + ${car.carId} + '/feedbacks'}">
+            <i class="fa-regular fa-comment"></i>
+            View all feedbacks
+        </a>
+    </div>
+    <!-- Page Table -->
+
+    <form action="#" th:action="@{/dashboard/cars/save}" th:object="${car}" method="POST" enctype="multipart/form-data">
+        <input type="hidden" id="carId" th:field="*{carId}">
+        <div class="row">
+            <div class="col-6">
+                <label for="carModel">Car Model <span class="text-danger">*</span></label>
+                <input required  id="carModel" type="text" th:field="*{carModel}" placeholder="Enter car model" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="brandId" >Brand <span class="text-danger">*</span></label>
+                <select id="brandId" th:field="*{brandId}" class="form-control mb-4" required>
+                    <option value="" selected>Choose Brand</option>
+                    <option th:each="brand : ${brands}" th:value="${brand.brandId}" th:text="${brand.brandName}"></option>
+                </select>
+            </div>
+            <div class="col-6 mb-3">
+                <label for="featureImage">Feature Image <span class="text-danger">*</span></label>
+                <input id="featureImage" type="file" th:field="*{featureImage}"  class="form-control mb-2">
+                <div id="featureImagePreview">
+                    <img th:if="${car.featureImageUrl != null}" th:src="@{'/' + ${car.featureImageUrl}}" class="img-fluid mx-2"
+                         style="height: 100px" alt="Feature Image">
+                </div>
+            </div>
+            <div class="col-6  mb-3">
+                <label for="images">Gallery Images</label>
+                <input multiple id="images" accept="image/*" type="file" th:field="*{images}" class="form-control mb-2">
+                <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="clearImagesInput()">Clear Images</button>
+                <div id="imagesPreview"  class="d-flex flex-wrap"></div>
+                <div th:if="${car.imageUrls != null && car.imageUrls.size() > 0}">
+                    <p class="fs-6">Old Gallery Images</p>
+                    <div class="d-flex flex-wrap">
+                        <div th:each="image : ${car.imageUrls}" style="position: relative">
+                            <img th:src="@{'/' + ${image}}" class="img-fluid d-block m-2"
+                                 style="height: 60px" alt="Gallery Image">
+                            <span class="image-delete-btn text-danger d-block px-2"
+                                  style="position: absolute; top: 0; right: 0;cursor: pointer;"
+                                  th:data-image-url= "${image}">
+                            X
+                        </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="deleteImagesUrl"></div>
+            </div>
+            <div class="col-6">
+                <label for="carColor">Color <span class="text-danger">*</span></label>
+                <input required id="carColor" type="text" th:field="*{carColor}" placeholder="Enter color" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="carLicensePlate">License Plate <span class="text-danger">*</span></label>
+                <input required id="carLicensePlate" type="text" th:field="*{carLicensePlate}" placeholder="Enter license plate" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="numberOfSeats">Number Of Seats <span class="text-danger">*</span></label>
+                <input required id="numberOfSeats" type="number" min="4" max="99" th:field="*{numberOfSeats}" placeholder="Enter number of seats" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="productionYear">Production Year <span class="text-danger">*</span></label>
+                <input required id="productionYear" type="number" min="1900" th:field="*{productionYear}" placeholder="Enter Production Year" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="transmissionType" >Transmission Type <span class="text-danger">*</span></label>
+                <select id="transmissionType" th:field="*{transmissionType}" class="form-control mb-4" required>
+                    <option value="" selected>Choose Transmission Type</option>
+                    <option th:each="transmissionType : ${transmissionTypes}" th:value="${transmissionType}" th:text="${transmissionType}"></option>
+                </select>
+            </div>
+            <div class="col-6">
+                <label for="fuelType" >Fuel Type <span class="text-danger">*</span></label>
+                <select id="fuelType" th:field="*{fuelType}" class="form-control mb-4" required>
+                    <option value="" selected>Choose Fuel Type</option>
+                    <option th:each="fuelType : ${fuelTypes}" th:value="${fuelType}" th:text="${fuelType}"></option>
+                </select>
+            </div>
+            <div class="col-6">
+                <label for="mileage">Mileage <span class="text-danger">*</span></label>
+                <input required id="mileage" type="number" min="0" th:field="*{mileage}" placeholder="Enter mileage" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="fuelConsumption" >Fuel Consumption <span class="text-danger">*</span></label>
+                <input required id="fuelConsumption" type="text"  th:field="*{fuelConsumption}" placeholder="Enter fuel consumption" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="basePrice">Base Price <span class="text-danger">*</span></label>
+                <input required id="basePrice" type="number" min="0" th:field="*{basePrice}" placeholder="Enter base price" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                 <label for="deposit">Deposit <span class="text-danger">*</span></label>
+                <input required id="deposit" type="number" min="0" th:field="*{deposit}" placeholder="Enter deposit" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="address">Address <span class="text-danger">*</span></label>
+                <input required id="address" type="text" th:field="*{address}" placeholder="Enter address" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label for="additionalFunction" >Additional Function</label>
+                <input id="additionalFunction" type="text" th:field="*{additionalFunction}" placeholder="Enter additional function" class="form-control mb-4">
+            </div>
+            <div class="col-12">
+                <label for="description">Description</label>
+                <textarea id="description" th:field="*{description}" placeholder="Enter description" class="form-control mb-4"></textarea>
+                <script>
+                    CKEDITOR.replace( 'description' );
+                </script>
+            </div>
+            <div class="col-12">
+                <label for="termOfUse" >Term Of Use</label>
+                <textarea id="termOfUse" th:field="*{termOfUse}" placeholder="Enter term of use" class="form-control mb-4"></textarea>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-info col-3"> Save Car</button>
+
+    </form>
+
+    <hr>
+
+    <a th:href="@{/dashboard/cars}"> Back to Cars List</a>
+</div>
+<!-- End Page Content -->
+</body>
+</html>

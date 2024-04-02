@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/dashboard/dashboard-layout}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Create Car</title>
+</head>
+<body>
+<!-- Begin Page Content -->
+<div class="container" layout:fragment="content">
+    <!-- Page Heading -->
+    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+    <h1 class="h3 mb-5 text-gray-800"  th:if="${product == null || product.productId == null}">Add New Car</h1>
+    <h1 class="h3 mb-5 text-gray-800"  th:if="${product != null && product.productId != null}">Edit Car Details</h1>
+
+    <!-- Page Table -->
+
+    <form action="#" th:action="@{/dashboard/products/save}" th:object="${product}" method="POST" enctype="multipart/form-data">
+
+        <input type="hidden" id="productId" th:field="*{productId}">
+
+        <div class="row">
+            <div class="col-6">
+                <label for="productName">Product Name<span class="text-danger">*</span></label>
+                <input required  id="productName" type="text" th:field="*{productName}" placeholder="Enter product name" class="form-control mb-4">
+            </div>
+
+            <div class="col-6">
+                <label for="categoryId" >Category <span class="text-danger">*</span></label>
+                <select id="categoryId" th:field="*{categoryId}" class="form-control mb-4" required>
+                    <option value="" selected>Choose Category</option>
+                    <option th:each="category : ${categories}" th:value="${category.categoryId}" th:text="${category.categoryName}"></option>
+                </select>
+            </div>
+
+            <div class="col-6 mb-3">
+                <label for="featureImage">Feature Image <span class="text-danger">*</span></label>
+                <input id="featureImage" type="file" th:field="*{featureImage}"  class="form-control mb-2">
+                <div id="featureImagePreview">
+                    <img th:if="${product.featureImageUrl != null}" th:src="@{'/' + ${product.featureImageUrl}}" class="img-fluid mx-2"
+                         style="height: 100px" alt="Feature Image">
+                </div>
+            </div>
+
+            <div class="col-6  mb-3">
+                <label for="images">Gallery Images</label>
+                <input multiple id="images" accept="image/*" type="file" th:field="*{images}" class="form-control mb-2">
+                <button type="button" class="btn btn-sm btn-secondary mb-2" onclick="clearImagesInput()">Clear Images</button>
+                <div id="imagesPreview"  class="d-flex flex-wrap"></div>
+                <div th:if="${product.imageUrls != null && product.imageUrls.size() > 0}">
+                    <p class="fs-6">Old Gallery Images</p>
+                    <div class="d-flex flex-wrap">
+                        <div th:each="image : ${product.imageUrls}" style="position: relative">
+                            <img th:src="@{'/' + ${image}}" class="img-fluid d-block m-2"
+                                 style="height: 60px" alt="Gallery Image">
+                            <span class="image-delete-btn text-danger d-block px-2"
+                                  style="position: absolute; top: 0; right: 0;cursor: pointer;"
+                                  th:data-image-url= "${image}">
+                            X
+                        </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="deleteImagesUrl"></div>
+            </div>
+
+            <div class="col-6">
+                <label for="colorId" >Color <span class="text-danger">*</span></label>
+                <select id="colorId" th:field="*{colorId}" class="form-control mb-4" required>
+                    <option value="" selected>Choose Color</option>
+                    <option th:each="color : ${colors}" th:value="${color.colorId}" th:text="${color.colorName}"></option>
+                </select>
+            </div>
+
+            <div class="col-6">
+                <label for="sizeId" >Size <span class="text-danger">*</span></label>
+                <select id="sizeId" th:field="*{sizeId}" class="form-control mb-4" required>
+                    <option value="" selected>Choose Size</option>
+                    <option th:each="size : ${sizes}" th:value="${size.sizeId}" th:text="${size.sizeName}"></option>
+                </select>
+            </div>
+
+            <div class="col-6">
+                <label for="quantity">Quantity<span class="text-danger">*</span></label>
+                <input required id="quantity" type="number" min="0" th:field="*{quantity}" placeholder="Enter quantity" class="form-control mb-4">
+            </div>
+
+            <div class="col-6">
+                <label for="basePrice">Base Price <span class="text-danger">*</span></label>
+                <input required id="basePrice" type="number" min="0" th:field="*{basePrice}" placeholder="Enter base price" class="form-control mb-4">
+            </div>
+
+            <div class="col-6">
+                 <label for="deposit">Deposit <span class="text-danger">*</span></label>
+                <input required id="deposit" type="number" min="0" th:field="*{deposit}" placeholder="Enter deposit" class="form-control mb-4">
+            </div>
+
+            <div class="col-12">
+                <label for="description">Description</label>
+                <textarea id="description" th:field="*{description}" placeholder="Enter description" class="form-control mb-4"></textarea>
+                <script>
+                    CKEDITOR.replace( 'description' );
+                </script>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-info col-3"> Save Product</button>
+
+    </form>
+
+    <hr>
+
+    <a th:href="@{/dashboard/products}"> Back to Products List</a>
+</div>
+<!-- End Page Content -->
+</body>
+</html>

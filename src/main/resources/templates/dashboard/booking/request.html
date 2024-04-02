@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    xmlns:th="http://www.thymeleaf.org" layout:decorate="~{/dashboard/dashboard-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Request</title>
+</head>
+
+<body>
+    <!-- Begin Page Content -->
+    <div class="container-fluid" layout:fragment="content">
+
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Booking Request</h1>
+        </div>
+
+        <div class="alert" th:classappend="${'alert-' + message[0]}" th:if="${message}" th:text="${message[1]}">
+        </div>
+
+        <form class="mt-2" method="get" th:action="@{/dashboard/bookings/request}" th:object="${filter}">
+            <div class="d-flex flex-wrap align-items-center">
+                <div class="form-group">
+                    <label for="carModel">Car Model</label>
+                    <input th:field="*{carModel}" type="text" class="form-control" id="carModel"
+                        placeholder="Enter Car Model">
+                </div>
+
+                <div class="ml-2 form-group">
+                    <label for="pickupDate">Pickup Date</label>
+                    <input th:field="*{pickupDate}" type="date" class="form-control" id="pickupDate">
+                </div>
+
+                <div class="ml-2 form-group">
+                    <label for="returnDate">Return Date</label>
+                    <input th:field="*{returnDate}" type="date" class="form-control" id="returnDate">
+                </div>
+
+                <div class="ml-2 form-group">
+                    <label for="status">Status</label>
+                    <select th:field="*{status}" class="form-control" id="status">
+                        <option value="">All</option>
+                        <option th:each="s : ${status}" th:value="${s}" th:text="${s.getStatus()}"></option>
+                    </select>
+                </div>
+                <div class="ml-2 mt-3">
+                    <input class="btn btn-primary" type="submit" value="Search">
+                </div>
+            </div>
+        </form>
+        <th:block th:if="${bookings.data.size() == 0}">
+            <div class="alert rounded alert-warning mt-3" role="alert">
+                No booking request found
+            </div>
+        </th:block>
+        <th:block th:unless="${bookings.data != null && bookings.data.size() == 0}">
+            <div class="request-wrapper">
+                <div th:each="item: ${bookings.data}" class="py-2 px-3 bg-white shadow-sm my-3 rounded">
+                    <div class="row d-flex justify-content-between align-items-center">
+                        <div class="col-12 col-md-6">
+
+                            <div class="my-2">
+                                <span class="badge" th:classappend="${'badge-' + item.status.statusClass}"
+                                    th:text="${item.status.status}">Pending</span>
+
+                                <a th:href="@{'/dashboard/bookings/request/' + ${item.bookingId} }" class="ml-2 font-weight-bold" th:text="${item.carModel}"></a>
+                            </div>
+
+                            <div class="my-2">
+                                <span th:text="${item.bookingDetail.paymentMethod.paymentMethod}"></span>
+                                by
+                                <span th:text="${item.bookingDetail.fullName}"></span>
+                                at <span
+                                    th:text="${#temporals.format(item.bookingRequestTime, 'dd-MM-yyyy HH:mm')}"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6 text-right">
+                            <div class="my-2">
+                                Fr: <span
+                                    th:text="${#temporals.format(item.bookingPickupTime, 'dd-MM-yyyy HH:mm')}"></span> /
+                                To: <span
+                                    th:text="${#temporals.format(item.bookingReturnTime, 'dd-MM-yyyy HH:mm')}"></span>
+                            </div>
+                            <div class="my-2">
+                                Total: <span th:class="font-weight-bold" th:text="${'$' + item.calculateTotalPrice()}"></span> /
+                                Fee: <span th:class="font-weight-bold" th:text="${'$' + item.calculateFeePrice()}"></span>
+                                <th:block th:if="${item.calculateExtraFeePrice() > 0}">
+                                    / Extra Fee: <span th:class="font-weight-bold"
+                                        th:text="${'$' + item.calculateExtraFeePrice()}"></span>
+                                </th:block>
+                            </div>
+                        </div>
+
+                        <div class="col-12 d-flex align-items-center justify-content-between">
+                            <a class="font-weight-bold text-decoration-underline" th:href="@{'/dashboard/bookings/request/' + ${item.bookingId} }">
+                                <i class="fa fa-eye" aria-hidden="true"></i>
+                                Details
+                            </a>
+
+                            <div class="text-right">
+                                <th:block th:if="${item.status.isPending()}">
+                                    <a class="btn btn-sm btn-success py-1" onclick="return confirm('Do you want to approve this request?')"
+                                        th:href="@{/dashboard/bookings/request/status(id = ${item.bookingId}, status = ${T(com.capstone.app.entity.type.Status).APPROVED.name})}">
+                                        <i class="fa fa-check" aria-hidden="true"></i>
+                                        Approve
+                                    </a>
+                                    <a class="btn btn-sm btn-danger py-1"  onclick="return confirm('Do you want to reject this request?')"
+                                        th:href="@{/dashboard/bookings/request/status(id = ${item.bookingId}, status = ${T(com.capstone.app.entity.type.Status).REJECTED.name})}">
+                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                        Reject
+                                    </a>
+                                </th:block>
+                                <th:block th:if="${item.status.name == T(com.capstone.app.entity.type.Status).APPROVED.name}">
+                                    <a class="btn btn-sm btn-warning py-1"  onclick="return confirm('Do you want to confirm this request?')"
+                                        th:href="@{/dashboard/bookings/request/status(id = ${item.bookingId}, status = ${T(com.capstone.app.entity.type.Status).DONE.name})}">
+                                        <i class="fa fa-check" aria-hidden="true"></i>
+                                        Confirm Return
+                                    </a>
+                                </th:block>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <nav aria-label="...">
+                <ul class="pagination justify-content-end">
+                    <li class="page-item" th:classappend="${bookings.hasPrevious()} ? '' : 'disabled'">
+                        <a class="page-link" href="#" th:href="@{/dashboard/bookings/request
+        (carModel=${filter.carModel},pickupDate =${filter.pickupDate}
+        ,returnDate=${filter.returnDate}, pageIndex=${filter.getPageIndex() - 1}
+        )}">Previous</a>
+                    </li>
+                    <th:block th:each="i : ${#numbers.sequence(1,bookings.getTotalPages())}">
+                        <li th:if="${i - 1 == filter.getPageIndex()}" class="page-item active">
+                            <a class="page-link" href="#" th:text="${i}"></a>
+                        </li>
+                        <li th:unless="${i - 1 == filter.getPageIndex()}" class="page-item">
+                            <a class="page-link" th:text="${i}" th:href="@{/dashboard/bookings/request
+        (carModel=${filter.carModel},pickupDate =${filter.pickupDate}
+        ,returnDate=${filter.returnDate}, pageIndex=${i - 1}
+        )}"></a>
+                        </li>
+                    </th:block>
+                    <li class="page-item" th:classappend="${bookings.hasNext()} ? '' : 'disabled'">
+                        <a class="page-link" th:href="@{/dashboard/bookings/request
+        (carModel=${filter.carModel},pickupDate =${filter.pickupDate}
+        ,returnDate=${filter.returnDate}, pageIndex=${filter.getPageIndex() + 1}
+        )}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </th:block>
+    </div>
+    <!-- End Page Content -->
+</body>
+
+</html>

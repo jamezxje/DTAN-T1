@@ -1,0 +1,103 @@
+body {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-size: 15px !important;
+}
+
+.content-description {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.content-description h2, .content-description h3,
+.content-description h4, .content-description h5,
+.content-description h6 {
+    margin: 16px 0;
+}
+
+.content-description h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #424242;
+}
+
+.content-description h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #424242;
+}
+
+.content-description h4 {
+    font-size: .925rem;
+    font-weight: 600;
+    color: #424242;
+}
+
+.content-description h5, .content-description h6 {
+    font-size: .875rem;
+    font-weight: 600;
+    color: #424242;
+}
+
+.screenshots {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    transition-property: transform;
+    box-sizing: content-box;
+    overflow: auto;
+    scroll-snap-type: x mandatory;
+}
+
+.screenshot {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+}
+
+.screenshot img {
+    height: 180px;
+    width: auto;
+    border-radius: 10px;
+}
+
+.car-item .car-item-img{
+    height: 132px;
+}
+@media screen and (max-width: 768px){
+
+    .car-item .car-item-img{
+        height: 300px;
+    }
+
+}
+
+@media screen and (min-width: 768px) and (max-width: 992px){
+
+    .car-item .car-item-img{
+        height: 230px;
+    }
+
+}
+
+@media screen and (min-width: 992px) and (max-width: 1050px){
+
+    .car-item .car-item-img{
+        height: 190px;
+    }
+
+}
+
+@media screen and (min-width: 1050px){
+    .car-item .car-item-img{
+        height: 160px;
+    }
+}

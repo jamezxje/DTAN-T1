@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+
+      layout:decorate="~{/dashboard/dashboard-layout}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Posts</title>
+</head>
+<body>
+<!-- Begin Page Content -->
+<div class="container-fluid" layout:fragment="content">
+    <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+    <!-- Page Heading -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h4 text-gray-800">Posts management</h1>
+        <a class="btn btn-sm btn-success" th:href="@{/dashboard/posts/add}">Add New Post</a>
+    </div>
+
+    <!--    Search Date -->
+    <form class="mt-2" method="get" th:action="@{/dashboard/posts}"  th:object="${filter}" >
+        <div class="d-flex  align-items-center">
+            <div class="ml-2 form-group">
+                <label for="postTitle">Post Title</label>
+                <input  th:field="*{postTitle}" type="text" placeholder="Enter title" class="form-control" id="postTitle" >
+            </div>
+
+            <div class="ml-2 form-group">
+                <label for="startDate">Start Date</label>
+                <input  th:field="*{startDate}" type="date" class="form-control" id="startDate" >
+            </div>
+
+            <div class="mx-2 form-group">
+                <label for="endDate">End Date</label>
+                <input th:field="*{endDate}" type="date" class="form-control" id="endDate" >
+            </div>
+            <div class="mx-2 form-group">
+                <label for="postStatus">Status</label>
+                <select id="postStatus" th:field="*{postStatus}" class="form-control" >
+                    <option th:each="s : ${status}" th:value="${s}" th:text="${s.status}"></option>
+                </select>
+            </div>
+
+            <div class="ml-2 mt-3">
+                <input class="btn btn-primary" type="submit" value="Search">
+            </div>
+        </div>
+    </form>
+    <!--    End Search Date-->
+
+    <th:block th:if="${postItemList.totalItems == 0}">
+        <div class="alert alert-warning mt-3 text-center" role="alert">
+            No post found
+        </div>
+    </th:block>
+
+    <th:block th:if="${postItemList.totalItems > 0}">
+        <div class="request-wrapper">
+            <div th:each="item: ${postItemList.data}" class="py-2 px-3 bg-white shadow-sm my-3 rounded">
+                <div class="row d-flex justify-content-between align-items-center">
+                    <div class="col-12 col-md-6 d-flex align-items-center justify-content-start">
+
+                        <div class="img-thumbnail mr-2" th:if="${item.postFeaturedImageUrl}">
+                            <img th:src="@{ '/' + ${item.postFeaturedImageUrl} }" class="rounded" th:alt="${item.postTitle}" style="width: 80px; max-width: 80px">
+                        </div>
+
+                        <div>
+                            <div class="my-2">
+                                <span class="font-weight-bold" th:text="${item.postTitle}"></span>
+                                <span th:class="${'badge small badge-' + item.postStatus.getStatusClass()}"
+                                      th:text="${item.postStatus.status}">
+                            </span>
+                            </div>
+
+                            <div class="my-2">
+                                <span class="small" th:text="${ 'by ' + item.author}"></span>
+                                <br>
+                                <span class="small" th:text="${ 'modified ' + #temporals.format(item.updatedAt, 'dd-MM-yyyy HH:mm')}"></span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-12 col-md-6 text-right">
+                        <div class="my-2">
+                            <th:block th:if="${item.postStatus.getStatus().equals('Publish')}">
+                                <a th:href="@{'/dashboard/posts/' + ${item.postId}}" class="btn btn-sm btn-outline-primary mx-2">
+                                    <i class="fa-solid fa-pencil"></i>
+                                    Edit
+                                </a>
+                                <a th:href="@{/dashboard/posts/status(id=${item.getPostId()}, status='TRASH')}"
+                                   onclick="return confirm('Are you sure to trash this post?')"
+                                   class="btn btn-sm btn-outline-warning mx-2">
+                                    <i class="fa-solid fa-trash"></i>
+                                    Trash
+                                </a>
+                            </th:block>
+                            <th:block th:if="${item.postStatus.getStatus().equals('Draft')}">
+                                <a th:href="@{'/dashboard/posts/' + ${item.postId}}" class="btn btn-sm btn-outline-primary mx-2">
+                                    <i class="fa-solid fa-pencil"></i>
+                                    Edit
+                                </a>
+                                <a th:href="@{/dashboard/posts/status(id=${item.getPostId()},status='PUBLISH')}"
+                                   onclick="return confirm('Are you sure to publish this post?')"
+                                   class="btn btn-sm btn-outline-info mx-2">
+                                    <i class="fas fa-globe"></i>
+                                    Publish
+                                </a>
+                                <a th:href="@{/dashboard/posts/status(id=${item.getPostId()}, status='TRASH')}"
+                                   onclick="return confirm('Are you sure to trash this post?')"
+                                   class="btn btn-sm btn-outline-warning mx-2">
+                                    <i class="fa-solid fa-trash"></i>
+                                    Trash
+                                </a>
+                            </th:block>
+                            <th:block th:if="${item.postStatus.getStatus().equals('Trash')}">
+                                <a th:href="@{/dashboard/posts/status(id=${item.getPostId()}, status='PUBLISH')}"
+                                   onclick="return confirm('Are you sure to restore this post?')"
+                                   class="btn btn-sm btn-outline-success mx-2">
+                                    <i class="fas fa-trash-restore"></i>
+                                    Restore
+                                </a>
+                                <a th:href="@{/dashboard/posts/delete(id=${item.getPostId()})}"
+                                   onclick="return confirm('Are you sure to delete this post?')"
+                                   class="btn btn-sm btn-outline-danger mx-2">
+                                    <i class="fa-solid fa-trash"></i>
+                                    Delete
+                                </a>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <nav aria-label="...">
+                <ul class="pagination justify-content-end">
+                    <li class="page-item" th:classappend="${postItemList.hasPrevious()} ? '' : 'disabled'">
+                        <a class="page-link" href="#" th:href="@{/dashboard/posts(startDate =${filter.startDate}
+                    ,endDate=${filter.endDate},postStatus=${filter.postStatus}, pageIndex=${filter.getPageIndex() - 1})}" >Previous</a>
+                    </li>
+                    <th:block th:each="i : ${#numbers.sequence(1,postItemList.getTotalPages())}">
+                        <li th:if="${i - 1 == filter.getPageIndex()}" class="page-item active">
+                            <a class="page-link" href="#" th:text="${i}"></a>
+                        </li>
+                        <li th:unless="${i - 1 == filter.getPageIndex()}" class="page-item">
+                            <a class="page-link" th:text="${i}" th:href="@{/dashboard/posts(startDate =${filter.startDate}
+                                                ,endDate=${filter.endDate},postStatus=${filter.postStatus}, pageIndex=${i - 1})}"></a>
+                        </li>
+                    </th:block>
+                    <li class="page-item" th:classappend="${postItemList.hasNext()} ? '' : 'disabled'">
+                        <a class="page-link" th:href="@{/dashboard/posts(startDate =${filter.startDate}
+                    ,endDate=${filter.endDate},postStatus=${filter.postStatus}, pageIndex=${filter.getPageIndex() + 1})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </th:block>
+
+
+</div>
+<!-- End Page Content -->
+</body>
+</html>

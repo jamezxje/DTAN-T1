@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{/dashboard/dashboard-layout}" >
+<head>
+  <meta charset="UTF-8">
+  <title>Deposits Request</title>
+</head>
+<body>
+<!-- Begin Page Content -->
+<div class="container-fluid" layout:fragment="content">
+  <div class="alert-danger alert text-center" th:if="${error}" th:text="${error}"></div>
+  <div class="alert-success alert text-center" th:if="${success}" th:text="${success}"></div>
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Transaction request</h1>
+  </div>
+  <form class="mt-2" method="get" th:action="@{/dashboard/request/deposits}" th:object="${filter}">
+    <input type="hidden" name="isShow" value="true">
+    <div class="d-flex flex-wrap align-items-center">
+      <div class="form-group">
+        <label for="memberName">Member Name</label>
+        <input th:field="*{memberName}" type="text" class="form-control" id="memberName" placeholder="Enter Member Name">
+      </div>
+
+      <div class="ml-2 form-group">
+        <label for="startDate">Start Date</label>
+        <input th:field="*{startDate}" type="date" class="form-control" id="startDate" >
+      </div>
+
+      <div class="ml-2 form-group">
+        <label for="endDate">End Date</label>
+        <input th:field="*{endDate}"  type="date" class="form-control" id="endDate" >
+      </div>
+
+      <div class="ml-2 form-group">
+        <label for="type">Type</label>
+        <select th:field="*{type}" class="form-control" id="type" >
+          <option value="REQUEST_IN">Deposit</option>
+          <option value="REQUEST_OUT">Withdraw</option>
+        </select>
+      </div>
+      <div class="ml-2 mt-3">
+        <input class="btn btn-primary" type="submit" value="Search">
+      </div>
+    </div>
+  </form>
+  <th:block th:if="${deposits.data.size() == 0}">
+    <div class="alert rounded alert-warning mt-3" role="alert">
+      No request found
+    </div>
+  </th:block>
+  <th:block th:unless="${deposits.data.size() == 0}">
+
+    <div class="request-wrapper">
+      <div th:each="item: ${deposits.data}" class="py-2 px-3 bg-white shadow-sm my-3 rounded">
+        <div class="row d-flex justify-content-between align-items-center">
+          <div class="col-12 col-md-6">
+
+            <div class="my-2">
+                                <span class="badge" th:classappend="${'badge-' + item.status.getStatusClass()}"
+                                      th:text="${item.status.getStatus()}">Pending</span>
+              <span class="ml-2 font-weight-bold" th:text="${item.type.getValue()}"></span>
+            </div>
+
+            <div class="my-2">
+              <span th:text="${'Note: ' +  item.note}"></span>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6 text-right">
+              <div class="my-2" >
+                <p class="ml-2 font-weight-bold" th:classappend="${'text-' + item.type.mode.getTextClass()}" th:text="${item.type.mode.symbol + ' $' + item.amount}"></p>
+              </div>
+          </div>
+
+          <div class="col-12 d-flex align-items-center justify-content-between">
+            <div class="my-2">
+              <span class="small" th:text="${'By ' + item.member.fullName}"></span>
+              <span class="small" th:text="${'at ' + #temporals.format(item.requestTime, 'dd-MM-yyyy HH:mm')}"></span>
+            </div>
+            <div class="text-right">
+              <th:block th:if="${item.status.isPending()}">
+                <a class="btn btn-sm btn-success py-1" onclick="return confirm('Do you want to approve this request?')"
+                   th:href="@{/dashboard/request/deposits/status(id=${item.getDepositRequestId()}, status=${T(com.capstone.app.entity.type.TransactionStatus).APPROVED})}">
+                  <i class="fa fa-check" aria-hidden="true"></i>
+                  Approve
+                </a>
+                <a class="btn btn-sm btn-danger py-1"  onclick="return confirm('Do you want to reject this request?')"
+                   th:href="@{/dashboard/request/deposits/status(id=${item.getDepositRequestId}, status=${T(com.capstone.app.entity.type.TransactionStatus).REJECTED})}">
+                  <i class="fa fa-times" aria-hidden="true"></i>
+                  Reject
+                </a>
+              </th:block>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <nav aria-label="...">
+      <ul class="pagination justify-content-end">
+        <li class="page-item" th:classappend="${deposits.hasPrevious()} ? '' : 'disabled'">
+          <a class="page-link" href="#" th:href="@{/dashboard/request/deposits
+        (memberName=${filter.memberName},startDate =${filter.startDate}
+        ,endDate=${filter.endDate}, pageIndex=${filter.getPageIndex() - 1}
+        )}" >Previous</a>
+        </li>
+        <th:block th:each="i : ${#numbers.sequence(1,deposits.getTotalPages())}">
+          <li th:if="${i - 1 == filter.getPageIndex()}" class="page-item active">
+            <a class="page-link" href="#" th:text="${i}"></a>
+          </li>
+          <li th:unless="${i - 1 == filter.getPageIndex()}" class="page-item">
+            <a class="page-link" th:text="${i}" th:href="@{/dashboard/request/deposits
+        (memberName=${filter.memberName},startDate =${filter.startDate}
+        ,endDate=${filter.endDate}, pageIndex=${i - 1}
+        )}"></a>
+          </li>
+        </th:block>
+        <li class="page-item" th:classappend="${deposits.hasNext()} ? '' : 'disabled'">
+          <a class="page-link" th:href="@{/dashboard/request/deposits
+        (memberName=${filter.memberName},startDate =${filter.startDate}
+        ,endDate=${filter.endDate}, pageIndex=${filter.getPageIndex() + 1}
+        )}">Next</a>
+        </li>
+      </ul>
+    </nav>
+  </th:block>
+</div>
+<!-- End Page Content -->
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+    layout:decorate="~{/frontend/fragment/front-layout}">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title> My booking history </title>
+</head>
+
+<body>
+    <div class="container mx-auto" layout:fragment="content">
+
+        <div class="my-4 py-3">
+            <form th:action="@{/history}" th:object="${filterSortDTO}" method="GET"
+                class="d-flex justify-content-between p-2">
+                <div class="row d-flex align-items-center justify-content-between w-100">
+                    <div class="col-6 col-md-3">
+                        <label for="returnStartDate">Pickup date</label>
+                        <input class="form-control my-2" type="date" id="returnStartDate" th:value="*{returnStartDate}"
+                            th:field="*{returnStartDate}">
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label for="returnEndDate">Return date</label>
+                        <input class="form-control my-2" type="date" id="returnEndDate" th:value="*{returnEndDate}"
+                            th:field="*{returnEndDate}">
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label for="status">Booking status</label>
+                        <select class="form-control form-select my-2" id="status" th:field="*{statusValue}">
+                            <option value="" checked>All</option>
+                            <option th:each="st : ${statuses}" th:value="${st}" th:text="${st.status}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-6 col-md-3">
+                        <label for="filterBtn">Action</label>
+                        <button type="submit" id="filterBtn"
+                            class="btn btn-outline-primary form-control my-2">Filter</button>
+                    </div>
+                </div>
+
+            </form>
+            <hr>
+        </div>
+
+        <th:block th:if="${bookings == null}">
+            <div class="alert rounded alert-warning mt-3" role="alert">
+                No booking request found
+            </div>
+        </th:block>
+        <th:block th:unless="${bookings == null}">
+            <div class="request-wrapper">
+                <div th:each="item: ${bookings}" class="py-2 px-3 shadow my-3 rounded bg-light bg-gradient">
+                    <div class="row d-flex justify-content-between align-items-center">
+                        <div class="col-12 col-md-6 text-start">
+
+                            <div class="my-2 align-baseline">
+                                <span class="badge small" th:classappend="${'bg-' + item.status.getStatusClass()}"
+                                    th:text="${item.status.getStatus()}"></span>
+                                <span class="ml-2 fw-bold" th:text="${item.carModel}"></span>
+                            </div>
+
+                        </div>
+
+                        <div class="col-12 col-md-6 text-end">
+                            <div class="my-2 text-right">
+                                Fr: <span th:text="${#temporals.format(item.pickupDate, 'dd-MM-yyyy HH:mm')}"></span> /
+                                To: <span th:text="${#temporals.format(item.returnDate, 'dd-MM-yyyy HH:mm')}"></span>
+                            </div>
+                            <div class="my-2 text-right">
+                                Total: <span th:class="fw-bold" th:text="${'$' + item.totalPrice}"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 d-flex align-items-center justify-content-between">
+
+                            <a class="fw-bold text-decoration-none"
+                                th:href="@{/history/booking/{id}(id=${item.bookingId})}">
+                                <i class="bi bi-eye"> </i>
+                                Details
+                            </a>
+
+                            <div class="text-right">
+                                <th:block th:if="${item.status.name == 'PENDING'}">
+                                    <form th:action="@{'/history/booking/' + ${item.bookingId} + '/cancel' }"
+                                        method="POST">
+                                        <button type="submit" class="btn btn-sm btn-warning btn-block"
+                                            th:onclick="return confirm('Are you sure you want to cancel this booking?')">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                </th:block>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+
+        <nav aria-label="Pagination" th:if="${totalPages > 0}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                    <a th:replace="frontend/fragment/booking_history_paging :: paging(1, '<<', 'First Page')"></a>
+                </li>
+                <li class="page-item fw-bold" th:classappend="${currentPage == 1} ? 'disabled'">
+                    <a
+                        th:replace="frontend/fragment/booking_history_paging :: paging(${currentPage - 1}, 'Prev', 'Previous Page')"></a>
+                </li>
+                <li class="page-item disabled" th:if="${currentPage - 2 > 1}">
+                    <a class="page-link" href="#">...</a>
+                </li>
+                <li class="page-item" th:classappend="${page == currentPage} ? 'active'"
+                    th:each="page : ${#numbers.sequence(currentPage > 2 ? currentPage - 2 : 1, currentPage + 2 < totalPages ? currentPage + 2 : totalPages)}">
+                    <a
+                        th:replace="frontend/fragment/booking_history_paging:: paging(${page}, ${page}, 'Page ' + ${page})"></a>
+                </li>
+                <li class="page-item disabled" th:if="${currentPage + 2 < totalPages}">
+                    <a class="page-link" href="#">...</a>
+                </li>
+                <li class="page-item fw-bold" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                    <a
+                        th:replace="frontend/fragment/booking_history_paging :: paging(${currentPage + 1},'Next', 'Next Page')"></a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                    <a
+                        th:replace="frontend/fragment/booking_history_paging:: paging(${totalPages}, '>>', 'Last Page')"></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Paging</title>
+</head>
+<body>
+<a th:fragment="paging(pageNum, label, tooltip)" class="page-link"
+   th:href="@{/search(page= ${pageNum},keyword=${searchDTO.keyword},
+   minPrice=${searchDTO.minPrice},maxPrice=${searchDTO.maxPrice},
+   brandId=${searchDTO.brandId},
+   numberOfSeats=${searchDTO.numberOfSeats},
+   transmissionType=${searchDTO.transmissionType})}"
+   th:title="${tooltip}" rel="tooltip">
+    [[${label}]]
+</a>
+</body>
+</html>

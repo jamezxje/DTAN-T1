@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+
+      layout:decorate="~{/dashboard/dashboard-layout}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Cars Management</title>
+</head>
+<body>
+<!-- Begin Page Content -->
+<div class="container-fluid" layout:fragment="content">
+    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+    <!-- Page Heading -->
+    <div class="d-flex justify-content-between">
+        <h1 class="h3 mb-5 text-gray-800">My cars management</h1>
+        <a class="btn btn-success my-auto" th:href="@{/dashboard/cars/add}">Add New Car</a>
+    </div>
+    <form class="mt-2" method="get" th:action="@{/dashboard/cars}" th:object="${filter}">
+        <div class="d-flex flex-wrap align-items-center">
+            <div class="form-group">
+                <label for="carModel">Car Model</label>
+                <input th:field="*{carModel}" type="text" class="form-control" id="carModel" placeholder="Enter Car Model">
+            </div>
+
+            <div class="ml-2 form-group">
+                <label for="brandId">Brand</label>
+                <select th:field="*{brandId}" type="email" class="form-control" id="brandId" >
+                    <option value="">All</option>
+                    <option th:each="brand : ${brands}" th:value="${brand.brandId}" th:text="${brand.brandName}"></option>
+                </select>
+            </div>
+
+            <div class="ml-2 form-group">
+                <label for="status">Status</label>
+                <select th:field="*{status}" type="email" class="form-control" id="status" >
+                    <option value="">All</option>
+                    <option th:each="s : ${status}" th:value="${s}" th:text="${s.getStatus()}"></option>
+                </select>
+            </div>
+            <div class="ml-2 mt-3">
+                <input class="btn btn-primary" type="submit" value="Search">
+            </div>
+        </div>
+    </form>
+    <!-- Page Table -->
+    <th:block th:if="${cars.data.size() == 0}">
+        <div class="alert rounded alert-warning mt-3" role="alert">
+            No cars found
+        </div>
+    </th:block>
+    <th:block th:unless="${cars.data.size() == 0}">
+        <div class="request-wrapper">
+            <div th:each="item: ${cars.data}" class="py-2 px-3 bg-white shadow-sm my-3 rounded">
+                <div class="row d-flex justify-content-between align-items-center">
+                    <div class="col-12 col-md-6 d-flex align-items-center justify-content-start">
+                        <div class="img-thumbnail mr-2">
+                            <a th:href="@{'/dashboard/cars/' + ${item.carId} }">
+                                <img th:src="@{${'/' + item.featureImageUrl}}" class="rounded" alt="Car image" style="width: 100px; max-width: 100px">
+                            </a>
+                        </div>
+                        <div>
+                            <div class="my-2 d-flex align-items-center">
+                                <a th:href="@{'/dashboard/cars/' + ${item.carId} }" class="font-weight-bold text-dark mr-1"
+                                   th:text="${item.carModel}"></a>
+                                <span class="badge small" th:classappend="${'badge-' + item.status.getStatusClass()}"
+                                      th:text="${item.status.getStatus()}">Pending</span>
+                            </div>
+                            <div>
+                                Year: <span  th:text="${item.productionYear}"></span>
+                            </div>
+                            <div >
+                                License plate:
+                                <span th:text="${item.carLicensePlate}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 text-right">
+                        <div class="mt-1">
+                            Base price: <span th:class="font-weight-bold" th:text="${'$' + item.basePrice}"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-12 d-flex align-items-center justify-content-between mt-1">
+                        <a class="font-weight-bold text-decoration-underline"
+                           th:href="@{/dashboard/cars/{id}/details(id=${item.carId})}">
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                            Details
+                        </a>
+
+                        <div class="text-right">
+                            <a th:if="${item.status.isPending()}"
+                               class="btn btn-sm btn-danger py-1"  onclick="return confirm('Do you want to reject this request?')"
+                               th:href="@{/dashboard/cars/cancel/{id}(id=${item.carId})}">
+                                <i class="fa fa-times" aria-hidden="true"></i>
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <nav aria-label="...">
+            <ul class="pagination justify-content-end">
+                <li class="page-item" th:classappend="${cars.hasPrevious()} ? '' : 'disabled'">
+                    <a class="page-link" href="#" th:href="@{/dashboard/cars
+        (carModel=${filter.carModel},brandId =${filter.brandId}
+        ,status=${filter.status}, pageIndex=${filter.getPageIndex() - 1}
+        )}" >Previous</a>
+                </li>
+                <th:block th:each="i : ${#numbers.sequence(1,cars.getTotalPages())}">
+                    <li th:if="${i - 1 == filter.getPageIndex()}" class="page-item active">
+                        <a class="page-link" href="#" th:text="${i}"></a>
+                    </li>
+                    <li th:unless="${i - 1 == filter.getPageIndex()}" class="page-item">
+                        <a class="page-link" th:text="${i}" th:href="@{/dashboard/cars
+        (carModel=${filter.carModel},brandId =${filter.brandId}
+        ,status=${filter.status}, pageIndex=${i - 1}
+        )}"></a>
+                    </li>
+                </th:block>
+                <li class="page-item" th:classappend="${cars.hasNext()} ? '' : 'disabled'">
+                    <a class="page-link" th:href="@{/dashboard/cars
+        (carModel=${filter.carModel},brandId =${filter.brandId}
+        ,status=${filter.status}, pageIndex=${filter.getPageIndex() + 1}
+        )}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </th:block>
+</div>
+<!-- End Page Content -->
+</body>
+</html>

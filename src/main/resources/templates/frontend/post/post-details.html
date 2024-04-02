@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/frontend/fragment/front-layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>[[${post.postTitle}]]</title>
+</head>
+
+<body>
+
+<div class="container-fluid" layout:fragment="content">
+    <section class="px-lg-5 mx-lg-5">
+        <div class="container px-4 px-lg-5 my-5">
+
+            <h1 class="fw-bolder h4 mb-4 text-center h3" th:text="${post.postTitle}"></h1>
+
+            <div class="text-center" th:if="${post.postFeaturedImageUrl != null}">
+                <img class="img-fluid rounded mb-4 rounded w-100" th:src="@{'/' + ${post.postFeaturedImageUrl}}" th:alt="${post.postTitle}"/>
+            </div>
+
+            <div class="post-info my-3 fst-italic">
+
+                <div class="text-muted">
+                    Posted by: <span th:text="${post.author}"></span>
+                </div>
+
+                <div class="text-muted">
+                    Last updated: <span th:text="${#temporals.format(post.updatedAt, 'dd-MMMM-yyyy HH:mm')}"></span>
+                </div>
+
+            </div>
+
+            <div class="post-content content-description">
+                <div th:utext="${post.postContent}">Post Content</div>
+            </div>
+
+        </div>
+    </section>
+</div>
+
+</body>
+</html>

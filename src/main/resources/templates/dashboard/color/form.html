@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/dashboard/dashboard-layout}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Category</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script type="text/javascript" th:src="@{/js/main.js}"></script>
+</head>
+<body>
+<!-- Begin Page Content -->
+<div class="container" layout:fragment="content">
+    <h1>Color Management System</h1>
+    <hr>
+    <h2 th:if="${color.colorId == null}">Save Color</h2>
+    <h2 th:if="${color.colorId != null}">Update Color</h2>
+    <br>
+    <form action="#" th:action="@{/dashboard/colors/save}" th:object="${color}" method="POST" enctype="multipart/form-data">
+
+        <input type="hidden" th:field="*{colorId}" />
+
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" th:field="*{colorName}" placeholder="Enter brand name" required class="form-control mb-4 col-4">
+
+        </div>
+        <button type="submit" class="btn btn-info col-3">
+            <span th:if="${color.colorId == null}">Save Color</span>
+            <span th:if="${color.colorId != null}">Update Color</span>
+        </button>
+
+    </form>
+    <hr>
+
+    <a th:href="@{/dashboard/colors}">Back to Color List</a>
+</div>
+<!-- End Page Content -->
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/dashboard/dashboard-layout}" >
+<head>
+    <meta charset="UTF-8">
+    <title>Category</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script type="text/javascript" th:src="@{/js/main.js}"></script>
+</head>
+<body>
+<!-- Begin Page Content -->
+<div class="container" layout:fragment="content">
+    <h1>Category Management System</h1>
+    <hr>
+    <h2 th:if="${category.categoryId == null}">Save Brand</h2>
+    <h2 th:if="${category.categoryId != null}">Update Brand</h2>
+    <br>
+    <form action="#" th:action="@{/dashboard/categories/save}" th:object="${category}" method="POST" enctype="multipart/form-data">
+
+        <input type="hidden" th:field="*{categoryId}" />
+
+        <div class="form-group">
+            <label>Category size chart</label>
+            <input id="images" type="file" th:field="*{categorySizeChart}" class="form-control mb-4 col-4 logo-input">
+            <div th:if="${category.categorySizeChartUrl != null}" class="d-inline-block position-relative brand-logo-container">
+                <img th:src="@{'/' + ${category.categorySizeChartUrl}}" class="brand-logo-preview" alt="Brand Logo Preview" style="height: 150px;">
+                <button class="btn position-absolute transparent-bg delete-button" style="top: 2px; right: 2px; color: red; font-weight: bold"> x </button>
+                <input type="hidden" class="delete-flag" name="deleteSizeChart" id="deleteFeatureImage" value="false">
+            </div>
+            <div th:if="${category.categorySizeChartUrl == null}" class="d-inline-block position-relative brand-logo-container">
+                <img class="brand-logo-preview">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" th:field="*{categoryName}" placeholder="Enter brand name" required class="form-control mb-4 col-4">
+
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <input type="text" th:field="*{categoryDescription}" placeholder="Enter brand description" class="form-control mb-4 col-4">
+        </div>
+        <button type="submit" class="btn btn-info col-3">
+            <span th:if="${category.categoryId == null}">Save Category</span>
+            <span th:if="${category.categoryId != null}">Update Category</span>
+        </button>
+
+    </form>
+    <hr>
+
+    <a th:href="@{/dashboard/categories}">Back to Category List</a>
+</div>
+<!-- End Page Content -->
+</body>
+</html>
